@@ -15,5 +15,3 @@
 <br>
 
 - **Aprendizado Contínuo ou Online (se possível):** Melhorar o desempenho com dados acumulados para tornar a recomendação mais precisa ao longo do tempo.
-
-teste
