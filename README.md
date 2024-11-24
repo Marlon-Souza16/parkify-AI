@@ -20,6 +20,9 @@
 
 ### **Colunas Geradas**
 
+<div align="center">
+
+
 | Coluna             | Descrição                                                                 |
 |---------------------|---------------------------------------------------------------------------|
 | `Vaga`             | Identificação única da vaga (ex.: `A1`, `B5`).                           |
@@ -32,6 +35,11 @@
 | `Início do Período`| Horário em que o status da vaga começou (formato `HH:MM:SS`).            |
 | `Fim do Período`   | Horário em que o status da vaga terminou (formato `HH:MM:SS`).           |
 | `Duração do Período`| Total de tempo em que a vaga ficou no mesmo estado (`hh:mm:ss`).        |
+
+
+
+
+<div>
 
 ---
 
