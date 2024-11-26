@@ -32,7 +32,7 @@ def generate_data_for_day(day_offset, start_date, parking_spots, opening_time, c
     day_data = []
 
     for spot in parking_spots:
-        n = random.randint(1, 5)
+        n = random.randint(2, 7)
         last_departure_time = opening_time
         occupied_periods = []
 
@@ -110,12 +110,13 @@ def generate_training_data_parallel():
     logging.info("Start of script execution with parallelism !")
     
     parking_spots = [f"{letter}{number}" for letter in "ABC" for number in range(1, 17)]
-    start_date = datetime.strptime('16/08/2024', '%d/%m/%Y')
+    start_date = datetime.strptime('05/12/2022', '%d/%m/%Y')
 
     opening_time = datetime.strptime(parking_opening_time, "%H:%M:%S")
     closing_time = datetime.strptime(parking_closing_time, "%H:%M:%S")
 
     total_days = int(qtd_days_to_gen_data)
+    print(total_days)
     all_data = []
 
     with ThreadPoolExecutor() as executor:
@@ -133,7 +134,7 @@ def generate_training_data_parallel():
         for future in futures:
             all_data.extend(future.result())
 
-    output_file = Path('./data/training_data_example.xlsx')
+    output_file = Path('./data/training_data.xlsx')
     output_file.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(all_data)
     df.to_excel(output_file, index=False)
