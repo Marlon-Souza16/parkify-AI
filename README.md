@@ -56,6 +56,7 @@
 
 O repositório contém um algoritmo em Python para gerar dados simulados de ocupação e disponibilidade de vagas. Este algoritmo é essencial para treinar e validar os modelos de IA que realizam as predições e notificações.
 (Melhorar detalhamento)
+
 ---
 
 ## Algoritmo de IA
