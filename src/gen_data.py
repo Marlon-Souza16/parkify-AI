@@ -6,6 +6,7 @@ import random
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+import threading
 
 load_dotenv()
 
@@ -20,7 +21,15 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
-import threading
+# Lista de datas com picos de uso
+high_demand_days = [
+    "25/11/2022",  # Black Friday
+    "24/12/2022",  # Christmas Eve
+    "31/12/2022",  # New Year's Eve
+]
+
+# Conversão para datetime
+high_demand_days = [datetime.strptime(date, "%d/%m/%Y") for date in high_demand_days]
 
 def generate_data_for_day(day_offset, start_date, parking_spots, opening_time, closing_time):
     thread_id = threading.get_ident()
@@ -28,23 +37,21 @@ def generate_data_for_day(day_offset, start_date, parking_spots, opening_time, c
     
     current_date = start_date + timedelta(days=day_offset)
     formatted_date = current_date.strftime('%d/%m/%Y')
+    is_high_demand = current_date in high_demand_days
     
     day_data = []
 
     for spot in parking_spots:
-        n = random.randint(2, 7)
+        n = random.randint(5, 10) if is_high_demand else random.randint(2, 7)
         last_departure_time = opening_time
         occupied_periods = []
 
         for _ in range(n):
-            distance = random.randint(0, 40)
-            light = random.randint(600, 1000)
             min_start_time = last_departure_time + timedelta(minutes=random.randint(1, 30))
-
             if min_start_time >= closing_time:
                 break
-            start_time = min_start_time
 
+            start_time = min_start_time
             hour_interval = random.randint(0, 2)
             min_interval = random.randint(0, 59)
             sec_interval = random.randint(0, 59)
@@ -64,8 +71,6 @@ def generate_data_for_day(day_offset, start_date, parking_spots, opening_time, c
             day_data.append({
                 "Spot": spot,
                 "Status": '0',
-                "Distance (cm)": distance,
-                "Light": light,
                 "Date": formatted_date,
                 "Period Start": start_time.strftime("%H:%M:%S"),
                 "Period End": departure_time.strftime("%H:%M:%S"),
@@ -88,14 +93,9 @@ def generate_data_for_day(day_offset, start_date, parking_spots, opening_time, c
             if free_start >= free_end:
                 continue
 
-            distance_free = random.randint(40, 400)
-            light_free = random.randint(0, 600)
-
             day_data.append({
                 "Spot": spot,
                 "Status": '1',
-                "Distance (cm)": distance_free,
-                "Light": light_free,
                 "Date": formatted_date,
                 "Period Start": free_start.strftime("%H:%M:%S"),
                 "Period End": free_end.strftime("%H:%M:%S"),
@@ -105,9 +105,8 @@ def generate_data_for_day(day_offset, start_date, parking_spots, opening_time, c
     logging.info(f"[Thread {thread_id}] Finalizado processamento do dia {formatted_date}.")
     return day_data
 
-
 def generate_training_data_parallel():
-    logging.info("Start of script execution with parallelism !")
+    logging.info("Start of script execution with parallelism!")
     
     parking_spots = [f"{letter}{number}" for letter in "ABC" for number in range(1, 17)]
     start_date = datetime.strptime('05/12/2022', '%d/%m/%Y')
@@ -116,7 +115,6 @@ def generate_training_data_parallel():
     closing_time = datetime.strptime(parking_closing_time, "%H:%M:%S")
 
     total_days = int(qtd_days_to_gen_data)
-    print(total_days)
     all_data = []
 
     with ThreadPoolExecutor() as executor:
@@ -137,9 +135,13 @@ def generate_training_data_parallel():
     output_file = Path('./data/training_data.xlsx')
     output_file.parent.mkdir(parents=True, exist_ok=True)
     df = pd.DataFrame(all_data)
+
+    # Removendo colunas desnecessárias
+    df = df.drop(columns=["Period Duration"])
+
     df.to_excel(output_file, index=False)
 
-    logging.info("Training data sucesffully generated !")
+    logging.info("Training data successfully generated!")
     logging.info("=" * 50)
 
 if __name__ == "__main__":
