@@ -1,61 +1,71 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import TimeSeriesSplit
+import os
+from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import StandardScaler
-from tensorflow import keras
 from keras._tf_keras.keras.models import Sequential
-from keras._tf_keras.keras.layers import Dense, LSTM, Dropout
-
-# Load and preprocess data
+from keras._tf_keras.keras.layers import Dense, Dropout
+from keras._tf_keras.keras.callbacks import EarlyStopping
+from sklearn.metrics import classification_report
+from sklearn.utils import class_weight
+from collections import Counter
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 data = pd.read_csv("./data/transformed_data.csv")
 
-# Feature engineering
 data["Is Weekend"] = (data["Day of Week"] >= 5).astype(int)
 data["Time (sin)"] = np.sin(2 * np.pi * data["Time (min)"] / 1440)
 data["Time (cos)"] = np.cos(2 * np.pi * data["Time (min)"] / 1440)
 
-# Encode categorical features
 data["Spot"] = data["Spot"].astype("category").cat.codes
 
-# Define features and target
 X = data[["Day of Week", "Time (sin)", "Time (cos)", "Is Weekend", "Spot"]]
 y = data["Status"]
 
-# Standardize data
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
+
 scaler = StandardScaler()
-X = scaler.fit_transform(X)
+X_train = scaler.fit_transform(X_train)
+X_test = scaler.transform(X_test)
 
-# Split data using TimeSeriesSplit
-tscv = TimeSeriesSplit(n_splits=5)
-for train_index, test_index in tscv.split(X):
-    X_train, X_test = X[train_index], X[test_index]
-    y_train, y_test = y.iloc[train_index], y.iloc[test_index]
+print("Distribuição das classes no conjunto de treinamento:")
+print(Counter(y_train))
 
-# Build LSTM model
+class_weights = class_weight.compute_class_weight(
+    'balanced', classes=np.unique(y_train), y=y_train
+)
+class_weights = dict(enumerate(class_weights))
+
 model = Sequential()
-model.add(LSTM(64, input_shape=(X_train.shape[1], 1), return_sequences=True))
-model.add(Dropout(0.2))
-model.add(LSTM(32, return_sequences=False))
-model.add(Dropout(0.2))
+model.add(Dense(256, activation='relu', input_dim=X_train.shape[1]))
+model.add(Dropout(0.4))
+model.add(Dense(128, activation='relu'))
+model.add(Dropout(0.4))
+model.add(Dense(64, activation='relu'))
+model.add(Dropout(0.4))
 model.add(Dense(1, activation='sigmoid'))
+
 
 model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
-# Train the model
-model.fit(
-    X_train.reshape(X_train.shape[0], X_train.shape[1], 1),  # Reshape for LSTM
+early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True, verbose=1)
+
+history = model.fit(
+    X_train,
     y_train,
-    validation_data=(X_test.reshape(X_test.shape[0], X_test.shape[1], 1), y_test),
-    epochs=10,
-    batch_size=32
+    validation_data=(X_test, y_test),
+    epochs=50,
+    batch_size=1024,
+    class_weight=class_weights,
+    callbacks=[early_stopping],
+    verbose=1
 )
 
-# Evaluate the model on the test data
-loss, accuracy = model.evaluate(
-    X_test.reshape(X_test.shape[0], X_test.shape[1], 1),  # Reshape for LSTM
-    y_test,
-    verbose=1  # Set verbose=1 if you want to see progress
-)
+final_model_path = './final_model.h5'
+model.save(final_model_path)
+print(f"Modelo final salvo em {final_model_path}")
 
-# Print accuracy
-print(f"Model accuracy on test data: {accuracy:.2%}")
+loss, accuracy = model.evaluate(X_test, y_test, verbose=1)
+print(f"Acurácia do modelo no conjunto de teste: {accuracy:.2%}")
+
+y_pred = (model.predict(X_test) > 0.5).astype("int32")
+print(classification_report(y_test, y_pred))
