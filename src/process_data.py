@@ -17,7 +17,7 @@ logging.info("Processing started.")
 # Load data from Excel
 logging.info("Loading data from Excel.")
 data = pd.read_excel("./data/training_data.xlsx")
-
+logging.info("Processing %i lines from excel", len(data))
 # Select necessary columns
 logging.info("Selecting necessary columns.")
 data = data[["Spot", "Status", "Date", "Period Start", "Period End"]]
@@ -51,7 +51,7 @@ def process_chunk(chunk, chunk_id):
     return expanded_data
 
 # Split data into chunks
-num_chunks = 12  # Adjust this number based on dataset size and CPU
+num_chunks = 24  # Adjust this number based on dataset size and CPU
 logging.info(f"Splitting data into {num_chunks} chunks.")
 data_chunks = np.array_split(data, num_chunks)
 

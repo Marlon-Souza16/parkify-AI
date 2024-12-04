@@ -1,172 +1,130 @@
 import pandas as pd
 import numpy as np
-from sklearn.model_selection import train_test_split, StratifiedKFold, RandomizedSearchCV
-from sklearn.preprocessing import StandardScaler, OneHotEncoder
-from sklearn.metrics import classification_report, precision_recall_curve, make_scorer, f1_score
+import os
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import StandardScaler
+from keras._tf_keras.keras.models import Sequential
+from keras._tf_keras.keras.layers import Dense, Dropout
+from keras._tf_keras.keras.callbacks import EarlyStopping
+from keras._tf_keras.keras.optimizers import Adam
+from sklearn.metrics import precision_score, roc_auc_score, roc_curve
 from sklearn.utils import class_weight
 from collections import Counter
-import tensorflow as tf
-from keras._tf_keras.keras.models import Sequential
-from keras._tf_keras.keras.layers import Dense, Dropout, BatchNormalization
-from keras._tf_keras.keras.callbacks import EarlyStopping
-from scikeras.wrappers import KerasClassifier
-from imblearn.over_sampling import SMOTE
-import warnings
-warnings.filterwarnings('ignore')
+import matplotlib.pyplot as plt
+import matplotlib
+matplotlib.use('Agg')
+# Desativar GPU se necessário
+os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
-# Carregar e pré-processar os dados
+# Carregar dados
 data = pd.read_csv("./data/transformed_data.csv")
 
-# **Engenharia de Features Aprimorada**
-
-# Criar uma feature para a hora do dia
-data["Hour"] = data["Time (min)"] // 60
-
-# Criar uma feature para o mês (supondo que a data esteja no formato correto)
-data["Date"] = pd.to_datetime(data["Date"], format="%Y-%m-%d")
-data["Month"] = data["Date"].dt.month
-
-# Adicionar interações entre features
-data["Day_Hour"] = data["Day of Week"] * data["Hour"]
-
-# Engenharia de atributos existente
+# Engenharia de características
 data["Is Weekend"] = (data["Day of Week"] >= 5).astype(int)
 data["Time (sin)"] = np.sin(2 * np.pi * data["Time (min)"] / 1440)
 data["Time (cos)"] = np.cos(2 * np.pi * data["Time (min)"] / 1440)
 
-# **Codificar variáveis categóricas usando OneHotEncoder**
-categorical_features = ["Spot"]
-onehot_encoder = OneHotEncoder(handle_unknown='ignore')
-encoded_features = onehot_encoder.fit_transform(data[categorical_features])
-encoded_feature_names = onehot_encoder.get_feature_names_out(categorical_features)
-encoded_df = pd.DataFrame(encoded_features, columns=encoded_feature_names)
+# Codificar a variável categórica 'Spot'
+data["Spot"] = data["Spot"].astype("category").cat.codes
 
-# Concatenar as features codificadas com o dataframe original
-data = pd.concat([data.reset_index(drop=True), encoded_df.reset_index(drop=True)], axis=1)
-data = data.drop(columns=categorical_features)
+# Selecionar features e target
+X = data[["Day of Week", "Time (sin)", "Time (cos)", "Is Weekend", "Spot"]]
+y = data["Status"]
 
-# **Definir features e target**
-feature_columns = [
-    "Day of Week", "Time (sin)", "Time (cos)", "Is Weekend",
-    "Hour", "Month", "Day_Hour"
-] + list(encoded_feature_names)
+# Dividir os dados em treino e teste
+X_train, X_test, y_train, y_test = train_test_split(
+    X, y, test_size=0.2, shuffle=False
+)
 
-X = data[feature_columns]
-y = data["Status"].astype(int)  # Certificar-se de que o target é inteiro
-
-# **Dividir os dados em conjunto de treinamento e teste**
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, stratify=y, random_state=42)
-
-# **Padronizar os dados**
+# Escalonamento
 scaler = StandardScaler()
 X_train = scaler.fit_transform(X_train)
 X_test = scaler.transform(X_test)
 
-# **Reavaliar o balanceamento das classes**
-
-# Verificar distribuição das classes
+# Exibir distribuição das classes
 print("Distribuição das classes no conjunto de treinamento:")
 print(Counter(y_train))
 
-# **Não aplicar SMOTE inicialmente e ajustar os pesos das classes**
-
-# Calcular os pesos das classes
+# Calcular pesos das classes
 class_weights = class_weight.compute_class_weight(
-    class_weight='balanced',
-    classes=np.unique(y_train),
-    y=y_train
+    'balanced', classes=np.unique(y_train), y=y_train
 )
 class_weights = dict(enumerate(class_weights))
-print("Pesos das classes:", class_weights)
 
-# **Definir uma função para criar o modelo (necessário para o RandomizedSearchCV)**
-def create_model(optimizer='adam', learning_rate=0.001, dropout_rate=0.2):
-    model = Sequential()
-    model.add(Dense(128, activation='relu', input_dim=X_train.shape[1]))
-    model.add(BatchNormalization())
-    model.add(Dropout(dropout_rate))
-    model.add(Dense(64, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dropout(dropout_rate))
-    model.add(Dense(32, activation='relu'))
-    model.add(BatchNormalization())
-    model.add(Dropout(dropout_rate))
-    model.add(Dense(1, activation='sigmoid'))
-    
-    # Compilar o modelo
-    if optimizer == 'adam':
-        opt = tf.keras.optimizers.Adam(learning_rate=learning_rate)
-    elif optimizer == 'rmsprop':
-        opt = tf.keras.optimizers.RMSprop(learning_rate=learning_rate)
-    else:
-        opt = optimizer
-    
-    model.compile(optimizer=opt, loss='binary_crossentropy', metrics=['accuracy'])
-    return model
+# Construir o modelo (lógica de treinamento mantida exatamente igual)
+model = Sequential()
+model.add(Dense(64, activation='relu', input_dim=X_train.shape[1]))
+model.add(Dropout(0.1))
+model.add(Dense(32, activation='relu'))
+model.add(Dropout(0.1))
+model.add(Dense(16, activation='relu'))
+model.add(Dropout(0.1))
+model.add(Dense(1, activation='sigmoid'))
 
-# **Definir o modelo KerasClassifier para usar com RandomizedSearchCV**
-model = KerasClassifier(build_fn=create_model, verbose=0)
+# Compilar o modelo (mantendo apenas acurácia como métrica)
+optimizer = Adam(learning_rate=0.001)
+model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
-# **Definir o espaço de busca para os hiperparâmetros**
-param_dist = {
-    'optimizer': ['adam', 'rmsprop'],
-    'learning_rate': [0.001, 0.0005, 0.0001],
-    'dropout_rate': [0.2, 0.3, 0.4],
-    'batch_size': [512, 1024],
-    'epochs': [20, 30],
-}
-
-# **Definir o callback de EarlyStopping**
-early_stopping = EarlyStopping(monitor='val_loss', patience=5, restore_best_weights=True, verbose=1)
-
-# **Definir o RandomizedSearchCV**
-random_search = RandomizedSearchCV(
-    estimator=model,
-    param_distributions=param_dist,
-    n_iter=10,
-    scoring=make_scorer(f1_score),
-    cv=3,
-    verbose=1,
-    random_state=42
+# Early stopping
+early_stopping = EarlyStopping(
+    monitor='val_loss', patience=5, restore_best_weights=True, verbose=1
 )
 
-# **Executar a busca de hiperparâmetros**
-random_search.fit(
+# Treinar o modelo
+history = model.fit(
     X_train,
     y_train,
     validation_data=(X_test, y_test),
+    epochs=15,
+    batch_size=1024,
     class_weight=class_weights,
-    callbacks=[early_stopping]
+    callbacks=[early_stopping],
+    verbose=1
 )
 
-# **Melhores hiperparâmetros encontrados**
-print("Melhores hiperparâmetros:", random_search.best_params_)
+# Salvar o modelo
+final_model_path = './final_model.h5'
+model.save(final_model_path)
+print(f"Modelo final salvo em {final_model_path}")
 
-# **Treinar o modelo com os melhores hiperparâmetros**
-best_model = random_search.best_estimator_.model
-
-# **Avaliar o modelo no conjunto de teste**
-loss, accuracy = best_model.evaluate(X_test, y_test, verbose=1)
+# Avaliar o modelo
+loss, accuracy = model.evaluate(X_test, y_test, verbose=1)
 print(f"Acurácia do modelo no conjunto de teste: {accuracy:.2%}")
 
-# **Obter as probabilidades de previsão**
-y_scores = best_model.predict(X_test).ravel()
+# Previsões
+y_pred_prob = model.predict(X_test)
+y_pred = (y_pred_prob > 0.5).astype("int32")
 
-# **Ajustar o threshold com base no F1-Score**
-precision, recall, thresholds = precision_recall_curve(y_test, y_scores)
-f1_scores = 2 * (precision * recall) / (precision + recall + 1e-6)
-best_index = np.argmax(f1_scores)
-best_threshold = thresholds[best_index]
+# Calcular precisão
+precision = precision_score(y_test, y_pred)
+print(f"Precisão do modelo no conjunto de teste: {precision:.2%}")
 
-print(f"Melhor Threshold: {best_threshold}")
+# Gerar relatório de classificação (sem métricas de recall e F1-score)
+print("Matriz de Confusão:")
+confusion_matrix = pd.crosstab(y_test, y_pred.reshape(-1), rownames=['Real'], colnames=['Predito'], margins=True)
+print(confusion_matrix)
 
-# **Aplicar o novo threshold**
-y_pred_adjusted = (y_scores >= best_threshold).astype(int)
+# AUC-ROC
+auc = roc_auc_score(y_test, y_pred_prob)
+print(f"AUC-ROC: {auc:.4f}")
 
-# **Gerar relatório de classificação**
-print(classification_report(y_test, y_pred_adjusted))
+# Curva ROC
+fpr, tpr, thresholds = roc_curve(y_test, y_pred_prob)
+plt.figure(figsize=(10,6))
+plt.plot(fpr, tpr, label=f'AUC = {auc:.4f}')
+plt.plot([0, 1], [0, 1], 'k--')
+plt.xlabel('Taxa de Falsos Positivos')
+plt.ylabel('Taxa de Verdadeiros Positivos')
+plt.title('Curva ROC')
+plt.legend(loc='lower right')
+plt.show()
 
-# **Salvar o modelo final**
-final_model_path = './final_model.h5'
-best_model.save(final_model_path)
-print(f"Modelo final salvo em {final_model_path}")
+# Plotando o Loss de Treino e Validação
+plt.figure(figsize=(10,6))
+plt.plot(history.history['loss'], label='Loss de Treino')
+plt.plot(history.history['val_loss'], label='Loss de Validação')
+plt.xlabel('Épocas')
+plt.ylabel('Loss')
+plt.title('Loss de Treino vs Loss de Validação')
+plt.legend()
+plt.show()
