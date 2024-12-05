@@ -2,7 +2,6 @@ import logging
 import os
 from dotenv import load_dotenv
 import pandas as pd
-import random
 from datetime import datetime, timedelta
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path

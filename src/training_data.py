@@ -10,12 +10,9 @@ from keras._tf_keras.keras.optimizers import Adam
 from sklearn.metrics import precision_score, roc_auc_score, roc_curve
 from sklearn.utils import class_weight
 from collections import Counter
-import matplotlib.pyplot as plt
-import matplotlib
 
 def training_model(transformed_data_path):
 
-    matplotlib.use('Agg')
     os.environ['CUDA_VISIBLE_DEVICES'] = '-1'
 
     data = pd.read_csv(transformed_data_path)
@@ -61,7 +58,7 @@ def training_model(transformed_data_path):
         monitor='val_loss', patience=5, restore_best_weights=True, verbose=1
     )
 
-    history = model.fit(
+    model.fit(
         X_train,
         y_train,
         validation_data=(X_test, y_test),
@@ -92,23 +89,4 @@ def training_model(transformed_data_path):
     auc = roc_auc_score(y_test, y_pred_prob)
     print(f"AUC-ROC: {auc:.4f}")
 
-    fpr, tpr, thresholds = roc_curve(y_test, y_pred_prob)
-    plt.figure(figsize=(10,6))
-    plt.plot(fpr, tpr, label=f'AUC = {auc:.4f}')
-    plt.plot([0, 1], [0, 1], 'k--')
-    plt.xlabel('Taxa de Falsos Positivos')
-    plt.ylabel('Taxa de Verdadeiros Positivos')
-    plt.title('Curva ROC')
-    plt.legend(loc='lower right')
-    plt.show()
-
-    plt.figure(figsize=(10,6))
-    plt.plot(history.history['loss'], label='Loss de Treino')
-    plt.plot(history.history['val_loss'], label='Loss de Validação')
-    plt.xlabel('Épocas')
-    plt.ylabel('Loss')
-    plt.title('Loss de Treino vs Loss de Validação')
-    plt.legend()
-    plt.show()
-    
     return final_model_path
