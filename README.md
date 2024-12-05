@@ -108,9 +108,9 @@ x & \text{se } x > 0 \\
 #### Exemplo Prático no Parkify-AI
 
 Suponha que o modelo receba como entrada:
-- **Dia da semana**: \(6\) (sábado).
-- **Horário transformado**: ```math \( \text{Time(sin)} = -0.5 \). ```
-- **Indicador de final de semana**: \( \text{Is Weekend} = 1 \).
+- **Dia da semana**: 6 (sábado).
+- **Horário transformado**: Time(sin) = -0.5.
+- **Indicador de final de semana**: Is Weekend = 1.
 
 Após os pesos e bias serem aplicados em uma camada densa, um dos neurônios pode produzir:
 - **Entrada Neuronal (pré-ativação)**: \( x = -3 \).
