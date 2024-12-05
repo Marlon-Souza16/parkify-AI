@@ -18,6 +18,8 @@ Monitoramento e Gerenciamento Inteligente de Vagas em Tempo Real.
   - [Cálculo de Acurácia e Precisão](#cálculo-de-acurácia-e-precisão)
 - [Justificativa da Escolha do Modelo 6](#justificativa-da-escolha-do-modelo-6)
 
+---
+
 ## Introdução
 
 O **Parkify-AI** é um projeto que visa aprimorar o monitoramento e gerenciamento de vagas de estacionamento em tempo real, utilizando técnicas de Inteligência Artificial para prever a disponibilidade de vagas e fornecer notificações aos motoristas.
@@ -29,6 +31,8 @@ O **Parkify-AI** é um projeto que visa aprimorar o monitoramento e gerenciament
 <br>
 
 - **Aprendizado Contínuo**: Melhorar o desempenho com dados acumulados para tornar as recomendações mais precisas ao longo do tempo.
+
+---
 
 ## Estrutura dos Dados
 
@@ -67,6 +71,7 @@ Os dados utilizados no projeto possuem a seguinte estrutura:
 
 </div>
 
+---
 
 ## Algoritmo de Geração de Dados Sintéticos
 
@@ -74,6 +79,8 @@ O repositório contém um algoritmo em Python para gerar dados simulados de ocup
 
 - **Expansão Granular**: Gera registros em intervalos de 5 minutos para uma análise mais detalhada dos padrões de ocupação.
 - **Enriquecimento de Dados**: Adiciona variáveis derivadas, como períodos do dia e indicadores de fim de semana, para melhorar a qualidade do modelo.
+
+---
 
 ## Arquitetura da Rede Neural
 
@@ -178,6 +185,8 @@ Ao ajustar os hiperparâmetros de uma rede neural, é fundamental equilibrar a c
    
    <br>
 
+---
+
 ## Avaliação do Modelo
 
 ### Métricas de Desempenho
@@ -278,6 +287,9 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 - **Acurácia no Conjunto de Teste**: 80.79%
 - **Precisão no Conjunto de Teste**: 92.25%
 - **AUC-ROC**: 0.8990
+
+
+---
 
 ## Justificativa da Escolha do Modelo 6
 
