@@ -109,7 +109,7 @@ x & \text{se } x > 0 \\
 
 Suponha que o modelo receba como entrada:
 - **Dia da semana**: \(6\) (sábado).
-- **Horário transformado**: \( \text{Time(sin)} = -0.5 \).
+- **Horário transformado**: $$ \( \text{Time(sin)} = -0.5 \). $$
 - **Indicador de final de semana**: \( \text{Is Weekend} = 1 \).
 
 Após os pesos e bias serem aplicados em uma camada densa, um dos neurônios pode produzir:
@@ -119,6 +119,8 @@ A função ReLU, ao ser aplicada:
 ```math
 f(x) = \max(0, -3) = 0
 ```
+
+<br>
 
 Portanto, nesse caso pode-se dizer que a ativação foi zerada e o neuronio 'descartado'.
 
