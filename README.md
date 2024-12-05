@@ -167,17 +167,22 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 
 
 - **Acurácia**:
+
   $$
   \text{Acurácia} = \frac{TP + TN}{TP + TN + FP + FN} = \frac{349,687 + 201,922}{682,800} \approx 80.79\%
   $$
 
+
+
 <br>
+
+
 
 - **Precisão**:
 
-  $$
+```math
   \text{Precisão} = \frac{TP}{TP + FP} = \frac{349,687}{349,687 + 29,384} \approx 92.25\%
-  $$
+```
 
 
 ### AUC-ROC
