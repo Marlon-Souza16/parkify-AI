@@ -80,7 +80,49 @@ O projeto utiliza uma rede neural para realizar as predições de disponibilidad
 
 ### Funções de Ativação Utilizadas:
 
-Sigmoid:
+**ReLU:**
+
+- Aplicada nas camadas intermediárias.
+- Filtra valores negativos, mantendo apenas os valores positivos, ajudando o modelo a aprender relações complexas e aumentando a eficiência do treinamento.
+
+<br>
+
+```math
+f(x) = 
+\begin{cases} 
+x & \text{se } x > 0 \\
+0 & \text{se } x \leq 0
+\end{cases}
+```
+
+<br>
+
+#### Por que a ReLU é Importante no Treinamento ? 
+
+- **Evita Neurônios Mortos**  
+  - Sem a ReLU, camadas ocultas poderiam acumular muitos valores negativos ou insignificantes.  
+  - A ReLU zera esses valores, "ligando" apenas neurônios relevantes.
+
+<br>
+
+#### Exemplo Prático no Parkify-AI
+
+Suponha que o modelo receba como entrada:
+- **Dia da semana**: \(6\) (sábado).
+- **Horário transformado**: \( \text{Time(sin)} = -0.5 \).
+- **Indicador de final de semana**: \( \text{Is Weekend} = 1 \).
+
+Após os pesos e bias serem aplicados em uma camada densa, um dos neurônios pode produzir:
+- **Entrada Neuronal (pré-ativação)**: \( x = -3 \).
+
+A função ReLU, ao ser aplicada:
+```math
+f(x) = \max(0, -3) = 0
+```
+
+Portanto, nesse caso pode-se dizer que a ativação foi zerada e o neuronio 'descartado'.
+
+**Sigmoid:**
 
 - Aplicada na última camada.
 - Converte a saída do modelo em uma probabilidade, facilitando a interpretação para classificação binária (como "ocupado" ou "disponível").
@@ -98,6 +140,8 @@ Teriamos o seguinte cálculo na função sigmoid:
 ```math
   f(2) = \frac{1}{1 + e^{-2}} \approx 0.88
 ```
+
+<br>
 
 Ou seja, nesse caso, a probabilidade de chover na data prevista seria de 88%.
 
