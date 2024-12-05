@@ -11,6 +11,7 @@ Monitoramento e Gerenciamento Inteligente de Vagas em Tempo Real.
 - [Arquitetura da Rede Neural](#arquitetura-da-rede-neural)
   - [Modelo Escolhido](#modelo-escolhido)
   - [Conceitos de Overfitting e Underfitting](#conceitos-de-overfitting-e-underfitting)
+  - [Funções de Ativação Utilizadas](#funções-de-ativação-utilizadas)
 - [Avaliação do Modelo](#avaliação-do-modelo)
   - [Métricas de Desempenho](#métricas-de-desempenho)
   - [Matriz de Confusão](#matriz-de-confusão)
