@@ -78,6 +78,30 @@ O repositório contém um algoritmo em Python para gerar dados simulados de ocup
 
 O projeto utiliza uma rede neural para realizar as predições de disponibilidade de vagas. Vários modelos foram testados, e o **Modelo 6** foi escolhido como o mais adequado.
 
+### Funções de Ativação Utilizadas:
+
+Sigmoid:
+
+- Aplicada na última camada.
+- Converte a saída do modelo em uma probabilidade, facilitando a interpretação para classificação binária (como "ocupado" ou "disponível").
+
+```math
+  f(x) = \frac{1}{1 + e^{-x}}
+```
+#### Exemplo Prático:
+
+- Supondo um modelo que cálcula a probabilidade de chover com base em condições climáticas:
+  - E que seu x = 2
+
+Teriamos o seguinte cálculo na função sigmoid:
+
+```math
+  f(2) = \frac{1}{1 + e^{-2}} \approx 0.88
+```
+
+Ou seja, nesse caso, a probabilidade de chover na data prevista seria de 88%.
+
+
 ### Conceitos de Overfitting e Underfitting
 
 - **Overfitting**: Ocorre quando o modelo se ajusta tão bem aos dados de treinamento que não generaliza bem para novos dados. O modelo "decora" os dados de treinamento, perdendo a capacidade de fazer predições precisas em dados desconhecidos.
