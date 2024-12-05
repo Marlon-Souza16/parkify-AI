@@ -181,7 +181,9 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 - **Precisão**:
 
   $$
+  
   \text{Precisão} = \frac{TP}{TP + FP} = \frac{349,687}{349,687 + 29,384} \approx 92.25\%
+
   $$
 
 
