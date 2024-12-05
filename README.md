@@ -11,11 +11,14 @@ Monitoramento e Gerenciamento Inteligente de Vagas em Tempo Real.
 - [Arquitetura da Rede Neural](#arquitetura-da-rede-neural)
   - [Modelo Escolhido](#modelo-escolhido)
   - [Conceitos de Overfitting e Underfitting](#conceitos-de-overfitting-e-underfitting)
+  - [Funções de Ativação Utilizadas](#funções-de-ativação-utilizadas)
 - [Avaliação do Modelo](#avaliação-do-modelo)
   - [Métricas de Desempenho](#métricas-de-desempenho)
   - [Matriz de Confusão](#matriz-de-confusão)
   - [Cálculo de Acurácia e Precisão](#cálculo-de-acurácia-e-precisão)
 - [Justificativa da Escolha do Modelo 6](#justificativa-da-escolha-do-modelo-6)
+
+---
 
 ## Introdução
 
@@ -28,6 +31,8 @@ O **Parkify-AI** é um projeto que visa aprimorar o monitoramento e gerenciament
 <br>
 
 - **Aprendizado Contínuo**: Melhorar o desempenho com dados acumulados para tornar as recomendações mais precisas ao longo do tempo.
+
+---
 
 ## Estrutura dos Dados
 
@@ -66,6 +71,7 @@ Os dados utilizados no projeto possuem a seguinte estrutura:
 
 </div>
 
+---
 
 ## Algoritmo de Geração de Dados Sintéticos
 
@@ -74,9 +80,81 @@ O repositório contém um algoritmo em Python para gerar dados simulados de ocup
 - **Expansão Granular**: Gera registros em intervalos de 5 minutos para uma análise mais detalhada dos padrões de ocupação.
 - **Enriquecimento de Dados**: Adiciona variáveis derivadas, como períodos do dia e indicadores de fim de semana, para melhorar a qualidade do modelo.
 
+---
+
 ## Arquitetura da Rede Neural
 
 O projeto utiliza uma rede neural para realizar as predições de disponibilidade de vagas. Vários modelos foram testados, e o **Modelo 6** foi escolhido como o mais adequado.
+
+### Funções de Ativação Utilizadas:
+
+**ReLU:**
+
+- Aplicada nas camadas intermediárias.
+- Filtra valores negativos, mantendo apenas os valores positivos, ajudando o modelo a aprender relações complexas e aumentando a eficiência do treinamento.
+
+<br>
+
+```math
+f(x) = 
+\begin{cases} 
+x & \text{se } x > 0 \\
+0 & \text{se } x \leq 0
+\end{cases}
+```
+
+<br>
+
+#### Por que a ReLU é Importante no Treinamento ? 
+
+- **Evita Neurônios Mortos**  
+  - Sem a ReLU, camadas ocultas poderiam acumular muitos valores negativos ou insignificantes.  
+  - A ReLU zera esses valores, "ligando" apenas neurônios relevantes.
+
+<br>
+
+#### Exemplo Prático no Parkify-AI
+
+Suponha que o modelo receba como entrada:
+- **Dia da semana**: 6 (sábado).
+- **Horário transformado**: Time(sin) = -0.5.
+- **Indicador de final de semana**: Is Weekend = 1.
+
+Após os pesos e bias serem aplicados em uma camada densa, um dos neurônios pode produzir:
+- **Entrada Neuronal (pré-ativação)**: \( x = -3 \).
+
+A função ReLU, ao ser aplicada:
+```math
+f(x) = \max(0, -3) = 0
+```
+
+<br>
+
+Portanto, nesse caso pode-se dizer que a ativação foi zerada e o neuronio 'descartado'.
+
+**Sigmoid:**
+
+- Aplicada na última camada.
+- Converte a saída do modelo em uma probabilidade, facilitando a interpretação para classificação binária (como "ocupado" ou "disponível").
+
+```math
+  f(x) = \frac{1}{1 + e^{-x}}
+```
+#### Exemplo Prático:
+
+- Supondo um modelo que cálcula a probabilidade de chover com base em condições climáticas:
+  - E que seu x = 2
+
+Teriamos o seguinte cálculo na função sigmoid:
+
+```math
+  f(2) = \frac{1}{1 + e^{-2}} \approx 0.88
+```
+
+<br>
+
+Ou seja, nesse caso, a probabilidade de chover na data prevista seria de 88%.
+
 
 ### Conceitos de Overfitting e Underfitting
 
@@ -106,6 +184,8 @@ Ao ajustar os hiperparâmetros de uma rede neural, é fundamental equilibrar a c
    - **Menos camadas/neurônios**: Simplificam o modelo, reduzindo o risco de overfitting. No entanto, podem levar ao **underfitting** se não forem capazes de modelar a complexidade dos dados.
    
    <br>
+
+---
 
 ## Avaliação do Modelo
 
@@ -208,9 +288,16 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 - **Precisão no Conjunto de Teste**: 92.25%
 - **AUC-ROC**: 0.8990
 
+
+---
+
 ## Justificativa da Escolha do Modelo 6
 
+<div align="center">
+
 ![Grafico](./utils/images/models_perf_graph.png)
+
+</div>
 
 - **Equilíbrio entre Complexidade e Desempenho**:
   - Modelos mais complexos, como o Modelo 12 (512, 256, 128 neurônios), apresentaram um ganho na acurácia, mas com maior risco de overfitting.
