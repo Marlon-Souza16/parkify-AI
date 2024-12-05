@@ -24,9 +24,17 @@ O **Parkify-AI** é um projeto que visa aprimorar o monitoramento e gerenciament
 ## Objetivos do Projeto
 
 - **Predição de Disponibilidade**: Analisar padrões para prever quais vagas estarão disponíveis em determinados horários, com base no histórico de ocupação.
+
+<br>
+
 - **Aprendizado Contínuo**: Melhorar o desempenho com dados acumulados para tornar as recomendações mais precisas ao longo do tempo.
 
 ## Estrutura dos Dados
+
+
+
+<div align="center">
+
 
 Os dados utilizados no projeto possuem a seguinte estrutura:
 
@@ -40,18 +48,30 @@ Os dados utilizados no projeto possuem a seguinte estrutura:
 | **Is Weekend** | Indica se é fim de semana (0 = Não, 1 = Sim).                                         |
 
 
+</div>
+
+
 ### Exemplo de Dados Processados
+
+
+<div align="center">
+
+
 
 | Vaga | Status | Data       | Day of Week | Time (min) | Is Weekend |
 |------|--------|------------|-------------|------------|------------|
 | A1   | 0      | 16/08/2024 | 4           | 387        | 0          |
 | A1   | 1      | 16/08/2024 | 4           | 720        | 0          |
 
+
+</div>
+
+
 ## Algoritmo de Geração de Dados Sintéticos
 
 O repositório contém um algoritmo em Python para gerar dados simulados de ocupação e disponibilidade de vagas. Este algoritmo é essencial para treinar e validar os modelos de IA que realizam as predições e notificações.
 
-- **Expansão Granular**: Gera registros minuto a minuto para uma análise mais detalhada.
+- **Expansão Granular**: Gera registros em periodos de 5 em 5 minutos para uma análise mais detalhada.
 - **Enriquecimento de Dados**: Adiciona variáveis derivadas, como períodos do dia e indicadores de fim de semana, para melhorar a qualidade do modelo.
 
 ## Arquitetura da Rede Neural
@@ -63,6 +83,29 @@ O projeto utiliza uma rede neural para realizar as predições de disponibilidad
 - **Overfitting**: Ocorre quando o modelo se ajusta tão bem aos dados de treinamento que não generaliza bem para novos dados. O modelo "decora" os dados de treinamento, perdendo a capacidade de fazer predições precisas em dados desconhecidos.
 
 - **Underfitting**: Acontece quando o modelo é muito simples e não consegue capturar padrões nos dados. Ele não consegue nem mesmo representar bem os dados de treinamento, resultando em baixa performance tanto em treinamento quanto em teste.
+
+### Relação entre Hiperparâmetros e Overfitting/Underfitting
+
+Ao ajustar os hiperparâmetros de uma rede neural, é fundamental equilibrar a complexidade do modelo e o comportamento do aprendizado. No caso do Parkify-AI, os seguintes pontos foram considerados:
+
+1. **Taxa de Aprendizado**:
+   - **Menor taxa de aprendizado**: A rede neural aprende mais devagar, analisando detalhadamente cada padrão. No entanto, isso pode levar ao **overfitting**, pois o modelo pode acabar memorizando os dados de treinamento.
+
+   <br>
+
+   - **Maior taxa de aprendizado**: A rede neural aprende mais rapidamente, mas corre o risco de não captar padrões complexos, resultando em **underfitting**.
+
+   <br>
+
+
+2. **Número de Camadas e Neurônios**:
+   - **Mais camadas/neurônios**: Aumentam a capacidade da rede de captar padrões complexos. Contudo, redes muito profundas podem sofrer de **overfitting**, ajustando-se excessivamente aos dados de treinamento.
+
+   <br>
+
+   - **Menos camadas/neurônios**: Simplificam o modelo, reduzindo o risco de overfitting. No entanto, podem levar ao **underfitting** se não forem capazes de modelar a complexidade dos dados.
+   
+   <br>
 
 ## Avaliação do Modelo
 
@@ -77,6 +120,11 @@ O projeto utiliza uma rede neural para realizar as predições de disponibilidad
 
 A matriz de confusão para o Modelo 6 é apresentada a seguir:
 
+
+
+<div align="center">
+
+
 | Predito |     0     |     1     |   Total   |
 |---------|-----------|-----------|-----------|
 | **Real 0**   | 201,922 |  29,384 | 231,306  |
@@ -84,7 +132,9 @@ A matriz de confusão para o Modelo 6 é apresentada a seguir:
 | **Total**    | 303,729 | 379,071 | 682,800  |
 
 
-### Exemplo Ilustrativo da Matriz de Confusão
+
+</div>
+
 
 Imagine que estamos tentando identificar se uma vaga de estacionamento está ocupada (1) ou livre (0).
 
@@ -93,7 +143,7 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 - **Falso Negativo (FN)**: O modelo previu que a vaga está livre, mas ela está ocupada.
 - **Verdadeiro Negativo (TN)**: O modelo previu que a vaga está livre, e ela realmente está livre.
 
-#### Interpretação da Matriz de Confusão
+### Interpretação da Matriz de Confusão
 
 - **Verdadeiros Negativos (TN)**: 201,922
   - O modelo previu 0 e o valor real também era 0.
@@ -104,22 +154,30 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 - **Verdadeiros Positivos (TP)**: 349,687
   - O modelo previu 1 e o valor real também era 1.
 
-#### Diferença entre Acurácia e Precisão
+### Diferença entre Acurácia e Precisão
 
-- **Acurácia**: Mede a proporção total de predições corretas. No contexto, 80.79% das vezes o modelo acertou se a vaga estava ocupada ou não.
+- **Acurácia**: É a proporção de todas as previsões corretas do modelo. No contexto, 80.79% das vezes o modelo acertou se a vaga estava ocupada ou não.
+
+<br>
+
 - **Precisão**: Avalia a qualidade das predições positivas. Dos casos em que o modelo previu que a vaga estava ocupada, 92.25% estavam realmente ocupadas.
 
 ### Cálculo de Acurácia e Precisão
+<br>
+
 
 - **Acurácia**:
-  \[
+  $$
   \text{Acurácia} = \frac{TP + TN}{TP + TN + FP + FN} = \frac{349,687 + 201,922}{682,800} \approx 80.79\%
-  \]
+  $$
+
+<br>
 
 - **Precisão**:
-  \[
+
+  $$
   \text{Precisão} = \frac{TP}{TP + FP} = \frac{349,687}{349,687 + 29,384} \approx 92.25\%
-  \]
+  $$
 
 
 ### AUC-ROC
@@ -150,7 +208,7 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 ![Grafico](./utils/images/models_perf_graph.png)
 
 - **Equilíbrio entre Complexidade e Desempenho**:
-  - Modelos mais complexos, como o Modelo 12 (512, 256, 128 neurônios), apresentaram um ganho marginal na acurácia, mas com maior risco de overfitting.
+  - Modelos mais complexos, como o Modelo 12 (512, 256, 128 neurônios), apresentaram um ganho na acurácia, mas com maior risco de overfitting.
 - **Taxa de Aprendizado Adequada**:
   - Uma taxa de aprendizado de 0.001 permite que o modelo aprenda de forma estável, reduzindo os riscos de overfitting e underfitting.
 - **Desempenho Geral**:
@@ -184,11 +242,24 @@ A seguir, descrevemos os principais elementos e funcionalidades dessa UI de test
      - As vagas de 1 a 29 estão ocupadas (em vermelho).
      - As vagas de 30 a 48 estão livres (em verde).
 
+
+<div align="center">
+
+
 ![UI](./utils/images/UI.png)
+
+
+</div>
+
 
 ### Como Funciona
 
 1. O usuário insere a **data** e o **horário** desejados.
-2. Ao clicar no botão "Prever Disponibilidade", o sistema consulta o modelo de IA para calcular quais vagas estarão disponíveis no momento especificado.
-3. A previsão é exibida diretamente no mapa de vagas, facilitando a visualização para o usuário.
 
+<br>
+
+2. Ao clicar no botão "Prever Disponibilidade", o sistema consulta o modelo de IA para calcular quais vagas estarão disponíveis no momento especificado.
+
+<br>
+
+3. A previsão é exibida diretamente no mapa de vagas, facilitando a visualização para o usuário.
