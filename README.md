@@ -248,9 +248,9 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 
 - **Acurácia**:
 
-  $$
+ ```math
   \text{Acurácia} = \frac{TP + TN}{TP + TN + FP + FN} = \frac{349,687 + 201,922}{682,800} \approx 80.79\%
-  $$
+  ```
 
 
 
