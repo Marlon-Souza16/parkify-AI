@@ -109,7 +109,7 @@ x & \text{se } x > 0 \\
 
 Suponha que o modelo receba como entrada:
 - **Dia da semana**: \(6\) (sábado).
-- **Horário transformado**: $$ \( \text{Time(sin)} = -0.5 \). $$
+- **Horário transformado**: ```math \( \text{Time(sin)} = -0.5 \). ```
 - **Indicador de final de semana**: \( \text{Is Weekend} = 1 \).
 
 Após os pesos e bias serem aplicados em uma camada densa, um dos neurônios pode produzir:
@@ -280,7 +280,11 @@ Imagine que estamos tentando identificar se uma vaga de estacionamento está ocu
 
 ## Justificativa da Escolha do Modelo 6
 
+<div align="center">
+
 ![Grafico](./utils/images/models_perf_graph.png)
+
+</div>
 
 - **Equilíbrio entre Complexidade e Desempenho**:
   - Modelos mais complexos, como o Modelo 12 (512, 256, 128 neurônios), apresentaram um ganho na acurácia, mas com maior risco de overfitting.
