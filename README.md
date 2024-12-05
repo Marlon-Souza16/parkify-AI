@@ -1,133 +1,194 @@
-# parkify-AI
+# Parkify-AI
 
-### Monitoramento e Gerenciamento de Vagas em Tempo Real:
+Monitoramento e Gerenciamento Inteligente de Vagas em Tempo Real.
 
-- **Predição de Disponibilidade:** Analisar padrões para prever quais vagas estarão disponíveis em determinados horários, com base em histórico de ocupação.
-<br>
+## Sumário
 
-- **Notificações em Tempo Real:** Enviar alertas para motoristas sobre a disponibilidade de vagas.
-<br>
+- [Introdução](#introdução)
+- [Objetivos do Projeto](#objetivos-do-projeto)
+- [Estrutura dos Dados](#estrutura-dos-dados)
+- [Algoritmo de Geração de Dados Sintéticos](#algoritmo-de-geração-de-dados-sintéticos)
+- [Arquitetura da Rede Neural](#arquitetura-da-rede-neural)
+  - [Modelo Escolhido](#modelo-escolhido)
+  - [Conceitos de Overfitting e Underfitting](#conceitos-de-overfitting-e-underfitting)
+- [Avaliação do Modelo](#avaliação-do-modelo)
+  - [Métricas de Desempenho](#métricas-de-desempenho)
+  - [Matriz de Confusão](#matriz-de-confusão)
+  - [Cálculo de Acurácia e Precisão](#cálculo-de-acurácia-e-precisão)
+- [Justificativa da Escolha do Modelo 6](#justificativa-da-escolha-do-modelo-6)
 
-- **Detecção Anômala:** Identificar comportamentos incomuns, como ocupação longa de vagas ou sensores indicando ocupação falsa.
-<br>
+## Introdução
 
-- **Predição de Ocupação Futura:** Utilizar séries temporais para prever quando o estacionamento estará cheio ou quando certa vaga estara vazia (de acordo com o tempo em que uma vaga costuma ficar ocupada).
-<br>
+O **Parkify-AI** é um projeto que visa aprimorar o monitoramento e gerenciamento de vagas de estacionamento em tempo real, utilizando técnicas de Inteligência Artificial para prever a disponibilidade de vagas e fornecer notificações aos motoristas.
 
-- **Aprendizado Contínuo ou Online (se possível):** Melhorar o desempenho com dados acumulados para tornar a recomendação mais precisa ao longo do tempo.
+## Objetivos do Projeto
+
+- **Predição de Disponibilidade**: Analisar padrões para prever quais vagas estarão disponíveis em determinados horários, com base no histórico de ocupação.
+- **Aprendizado Contínuo**: Melhorar o desempenho com dados acumulados para tornar as recomendações mais precisas ao longo do tempo.
 
 ## Estrutura dos Dados
 
+Os dados utilizados no projeto possuem a seguinte estrutura:
 
-<div align="center">
-
-
-| Coluna              | Descrição                                                                 |
-|----------------------|---------------------------------------------------------------------------|
-| `Vaga`              | Identificação única da vaga (ex.: `A1`, `B5`).                           |
-| `Status`            | Indica se a vaga está ocupada (`0`) ou livre (`1`).                      |
-| `Data`              | Dia em que a vaga foi monitorada (formato `DD/MM/AAAA`).                 |
-| `Day of Week`       | Dia da semana (0 = Segunda-feira, 6 = Domingo).                          |
-| `Time (min)`        | Tempo em minutos desde o início do dia.                                  |
-| `Time Period`       | Período do dia (`Early Morning`, `Morning`, `Afternoon`, `Evening`).     |
-| `Is Weekend`        | Indica se é fim de semana (`0` = Não, `1` = Sim).                        |
-| `Weekday_Hour`      | Interação entre dia da semana e horário (captura padrões semanais).      |
-
----
-
-## Exemplo de Dados Processados
-
-| Vaga | Status | Data       | Day of Week | Time (min) | Time Period | Is Weekend | Weekday_Hour |
-|------|--------|------------|-------------|------------|-------------|------------|--------------|
-| A1   | 0      | 16/08/2024 | 4           | 387        | Morning     | 0          | 1548         |
-| A1   | 1      | 16/08/2024 | 4           | 720        | Afternoon   | 0          | 2880         |
+| Coluna         | Descrição                                                                             |
+|----------------|---------------------------------------------------------------------------------------|
+| **Vaga**       | Identificação única da vaga (ex.: A1, B5).                                            |
+| **Status**     | Indica se a vaga está ocupada (0) ou livre (1).                                       |
+| **Data**       | Dia em que a vaga foi monitorada (formato DD/MM/AAAA).                                |
+| **Day of Week**| Dia da semana (0 = Segunda-feira, 6 = Domingo).                                       |
+| **Time (min)** | Tempo em minutos desde o início do dia.                                               |
+| **Is Weekend** | Indica se é fim de semana (0 = Não, 1 = Sim).                                         |
 
 
+### Exemplo de Dados Processados
 
-</div>
-
----
+| Vaga | Status | Data       | Day of Week | Time (min) | Is Weekend |
+|------|--------|------------|-------------|------------|------------|
+| A1   | 0      | 16/08/2024 | 4           | 387        | 0          |
+| A1   | 1      | 16/08/2024 | 4           | 720        | 0          |
 
 ## Algoritmo de Geração de Dados Sintéticos
 
 O repositório contém um algoritmo em Python para gerar dados simulados de ocupação e disponibilidade de vagas. Este algoritmo é essencial para treinar e validar os modelos de IA que realizam as predições e notificações.
-(Melhorar detalhamento)
 
----
+- **Expansão Granular**: Gera registros minuto a minuto para uma análise mais detalhada.
+- **Enriquecimento de Dados**: Adiciona variáveis derivadas, como períodos do dia e indicadores de fim de semana, para melhorar a qualidade do modelo.
 
-## Algoritmo de IA
+## Arquitetura da Rede Neural
 
-### **Modelo Utilizado**
+O projeto utiliza uma rede neural para realizar as predições de disponibilidade de vagas. Vários modelos foram testados, e o **Modelo 6** foi escolhido como o mais adequado.
 
-O projeto utiliza o algoritmo **XGBoost**, configurado para realizar classificações rápidas e precisas, mesmo com grandes volumes de dados. O modelo é otimizado usando validação cruzada e ajuste de hiperparâmetros com `RandomizedSearchCV`.
+### Conceitos de Overfitting e Underfitting
 
-### **Principais Recursos**
-1. **Treinamento Paralelo:**
-   - O treinamento utiliza todos os núcleos do processador para lidar com grandes volumes de dados.
-2. **Otimização Automática:**
-   - Os hiperparâmetros, como profundidade da árvore e taxa de aprendizado, são ajustados automaticamente para maximizar a acurácia.
-3. **Predição em Tempo Real:**
-   - Após treinado, o modelo pode ser usado para prever a disponibilidade de vagas em segundos.
-4. **Salvamento do Modelo:**
-   - O modelo é salvo em formato `.pkl`, permitindo reutilização futura sem necessidade de re-treinamento.
+- **Overfitting**: Ocorre quando o modelo se ajusta tão bem aos dados de treinamento que não generaliza bem para novos dados. O modelo "decora" os dados de treinamento, perdendo a capacidade de fazer predições precisas em dados desconhecidos.
 
----
+- **Underfitting**: Acontece quando o modelo é muito simples e não consegue capturar padrões nos dados. Ele não consegue nem mesmo representar bem os dados de treinamento, resultando em baixa performance tanto em treinamento quanto em teste.
 
-## Fluxo de Trabalho
+## Avaliação do Modelo
 
-1. **Pré-processamento dos Dados**:
-   - Expansão granular para registros minuto a minuto.
-   - Enriquecimento com variáveis derivadas (ex.: períodos do dia, finais de semana).
+### Métricas de Desempenho
 
-2. **Treinamento do Modelo**:
-   - Utilização de XGBoost com paralelização total (`n_jobs=-1`).
-   - Ajuste de hiperparâmetros com `RandomizedSearchCV`.
+- **Acurácia**: Proporção de todas as previsões corretas do modelo.
+- **Precisão**: Proporção de predições corretas em relação às predições positivas feitas pelo modelo.
+- **Recall (Sensibilidade)**: Proporção de positivos reais que foram corretamente identificados pelo modelo.
+- **AUC-ROC**: Métrica que avalia a capacidade do modelo em distinguir entre as classes positivas e negativas.
 
-3. **Avaliação**:
-   - Relatórios detalhados de acurácia, precisão, recall e F1-score.
+### Matriz de Confusão
 
-4. **Reutilização**:
-   - Salvamento do modelo treinado para uso em predições futuras.
+A matriz de confusão para o Modelo 6 é apresentada a seguir:
 
----
+| Predito |     0     |     1     |   Total   |
+|---------|-----------|-----------|-----------|
+| **Real 0**   | 201,922 |  29,384 | 231,306  |
+| **Real 1**   | 101,807 | 349,687 | 451,494  |
+| **Total**    | 303,729 | 379,071 | 682,800  |
 
-## Detalhe sobre `Weekday_Hour`
 
-A variável **`Weekday_Hour`** é uma *feature* criada para capturar a interação entre o **dia da semana** e o **horário** do dia. Essa interação ajuda o modelo a identificar padrões específicos que dependem tanto do horário quanto do dia da semana.
+### Exemplo Ilustrativo da Matriz de Confusão
 
-### **Como é Calculada**
-- **`Day of Week`**: Representa o dia da semana (0 = Segunda-feira, 6 = Domingo).
-- **`Time (min)`**: Representa o horário em minutos desde o início do dia (ex.: 12:00 = 720 minutos).
+Imagine que estamos tentando identificar se uma vaga de estacionamento está ocupada (1) ou livre (0).
 
-### **Por que ela é útil?**
+- **Verdadeiro Positivo (TP)**: O modelo previu que a vaga está ocupada, e ela realmente está ocupada.
+- **Falso Positivo (FP)**: O modelo previu que a vaga está ocupada, mas ela está livre.
+- **Falso Negativo (FN)**: O modelo previu que a vaga está livre, mas ela está ocupada.
+- **Verdadeiro Negativo (TN)**: O modelo previu que a vaga está livre, e ela realmente está livre.
 
-#### **1. Padrões Semanais**
-Certos horários podem ser mais movimentados em dias específicos. Por exemplo:
-- Segunda-feira de manhã (horário de pico de trabalho).
-- Sábado à tarde (mais visitantes em shoppings).
+#### Interpretação da Matriz de Confusão
 
-A multiplicação `Day of Week * Time (min)` cria uma *feature* que diferencia essas situações.
+- **Verdadeiros Negativos (TN)**: 201,922
+  - O modelo previu 0 e o valor real também era 0.
+- **Falsos Positivos (FP)**: 29,384
+  - O modelo previu 1, mas o valor real era 0.
+- **Falsos Negativos (FN)**: 101,807
+  - O modelo previu 0, mas o valor real era 1.
+- **Verdadeiros Positivos (TP)**: 349,687
+  - O modelo previu 1 e o valor real também era 1.
 
-#### **2. Ajuda na Identificação de Combinações**
-Diferencia, por exemplo:
-- Segunda-feira às 10:00 (600 minutos * 0 = 0).
-- Domingo às 10:00 (600 minutos * 6 = 3600).
+#### Diferença entre Acurácia e Precisão
 
-O modelo consegue aprender que o mesmo horário tem padrões diferentes dependendo do dia.
+- **Acurácia**: Mede a proporção total de predições corretas. No contexto, 80.79% das vezes o modelo acertou se a vaga estava ocupada ou não.
+- **Precisão**: Avalia a qualidade das predições positivas. Dos casos em que o modelo previu que a vaga estava ocupada, 92.25% estavam realmente ocupadas.
 
-#### **3. Evita Redundância**
-Ao invés de criar variáveis separadas para **hora** e **dia**, a interação combina as informações em uma única *feature*.
+### Cálculo de Acurácia e Precisão
 
-### **Exemplo**
+- **Acurácia**:
+  \[
+  \text{Acurácia} = \frac{TP + TN}{TP + TN + FP + FN} = \frac{349,687 + 201,922}{682,800} \approx 80.79\%
+  \]
 
-| Day of Week | Time (min) | Weekday_Hour |
-|-------------|------------|--------------|
-| 0 (Segunda) | 600        | 0            |
-| 1 (Terça)   | 600        | 600          |
-| 6 (Domingo) | 600        | 3600         |
+- **Precisão**:
+  \[
+  \text{Precisão} = \frac{TP}{TP + FP} = \frac{349,687}{349,687 + 29,384} \approx 92.25\%
+  \]
 
-Tendo isso em vista, segue um exemplo prático:
-- Segunda-feira às 10:00 (600 minutos) é representada como `0` (início da semana).
-- Domingo às 10:00 é representado como `3600`, destacando um horário e dia de comportamento diferente.
 
-Essa variável permite ao modelo capturar padrões semanais específicos e melhorar a precisão das previsões.
+### AUC-ROC
+
+- **ROC (Receiver Operating Characteristic)**: Curva que representa a taxa de verdadeiros positivos (sensibilidade) contra a taxa de falsos positivos (1 - especificidade).
+- **AUC (Area Under the Curve)**: Mede a capacidade do modelo em distinguir entre as classes. Varia de 0.5 (chute aleatório) a 1.0 (modelo perfeito).
+- **Interpretação do AUC-ROC de 0.8990**: O modelo tem 89.90% de chance de distinguir corretamente entre uma vaga ocupada e uma vaga livre.
+
+### Modelo Escolhido
+
+- **Estrutura da Rede**:
+  - **Camada 1**: 64 neurônios
+  - **Camada 2**: 32 neurônios
+  - **Camada 3**: 16 neurônios
+- **Taxa de Aprendizado**: 0.001
+- **Função de Ativação**: ReLU nas camadas ocultas e Sigmoid na saída
+- **Épocas de Treinamento**: 15
+
+#### Desempenho do Modelo 6
+
+- **Perda de Validação**: 0.39
+- **Acurácia no Conjunto de Teste**: 80.79%
+- **Precisão no Conjunto de Teste**: 92.25%
+- **AUC-ROC**: 0.8990
+
+## Justificativa da Escolha do Modelo 6
+
+![Grafico](./utils/images/models_perf_graph.png)
+
+- **Equilíbrio entre Complexidade e Desempenho**:
+  - Modelos mais complexos, como o Modelo 12 (512, 256, 128 neurônios), apresentaram um ganho marginal na acurácia, mas com maior risco de overfitting.
+- **Taxa de Aprendizado Adequada**:
+  - Uma taxa de aprendizado de 0.001 permite que o modelo aprenda de forma estável, reduzindo os riscos de overfitting e underfitting.
+- **Desempenho Geral**:
+  - O Modelo 6 alcançou uma acurácia de 80.79% e uma precisão de 92.25%, com um AUC-ROC de 0.8990, indicando excelente capacidade de generalização.
+- **Menor Risco de Overfitting**:
+  - Com menos neurônios e camadas, o modelo é menos propenso a se ajustar excessivamente aos dados de treinamento.
+
+### Resultados e UI
+
+O **Parkify-AI** é capaz de identificar com alta precisão o status das vagas de estacionamento, fornecendo informações confiáveis sobre a disponibilidade das vagas. Para testes e validação do modelo, foi desenvolvida uma interface de usuário (UI) simples e funcional, que permite explorar as capacidades do sistema de forma interativa.
+
+A seguir, descrevemos os principais elementos e funcionalidades dessa UI de teste:
+
+1. **Campo de Data**:
+   - **Descrição**: Permite que o usuário insira a data no formato `DD/MM/AAAA`.
+   - **Exemplo**: `02/02/2024`.
+
+2. **Campo de Hora**:
+   - **Descrição**: Permite que o usuário insira o horário no formato `HH:MM`.
+   - **Exemplo**: `20:00`.
+
+3. **Botão "Prever Disponibilidade"**:
+   - **Descrição**: Após preencher os campos de data e hora, o usuário deve clicar neste botão para gerar a previsão de disponibilidade de vagas.
+
+4. **Mapa de Vagas**:
+   - **Descrição**: Representa graficamente as vagas disponíveis e ocupadas no estacionamento.
+   - **Cores**:
+     - **Vermelho**: Vagas ocupadas.
+     - **Verde**: Vagas disponíveis.
+   - **Exemplo na Imagem abaixo**:
+     - As vagas de 1 a 29 estão ocupadas (em vermelho).
+     - As vagas de 30 a 48 estão livres (em verde).
+
+![UI](./utils/images/UI.png)
+
+### Como Funciona
+
+1. O usuário insere a **data** e o **horário** desejados.
+2. Ao clicar no botão "Prever Disponibilidade", o sistema consulta o modelo de IA para calcular quais vagas estarão disponíveis no momento especificado.
+3. A previsão é exibida diretamente no mapa de vagas, facilitando a visualização para o usuário.
+
