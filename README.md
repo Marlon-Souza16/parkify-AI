@@ -71,7 +71,7 @@ Os dados utilizados no projeto possuem a seguinte estrutura:
 
 O repositório contém um algoritmo em Python para gerar dados simulados de ocupação e disponibilidade de vagas. Este algoritmo é essencial para treinar e validar os modelos de IA que realizam as predições e notificações.
 
-- **Expansão Granular**: Gera registros em periodos de 5 em 5 minutos para uma análise mais detalhada.
+- **Expansão Granular**: Gera registros em intervalos de 5 minutos para uma análise mais detalhada dos padrões de ocupação.
 - **Enriquecimento de Dados**: Adiciona variáveis derivadas, como períodos do dia e indicadores de fim de semana, para melhorar a qualidade do modelo.
 
 ## Arquitetura da Rede Neural
